@@ -1,6 +1,6 @@
 # This dockerfile is meant to cross compile with a x64 machine for a arm32v7 host
 # It is using multi stage build: 
-# * downloader: Download litecoin/bitcoin and qemu binaries needed for c-lightning
+# * downloader: Download beyondcoin/bitcoin and qemu binaries needed for c-lightning
 # * builder: Cross compile c-lightning dependencies, then c-lightning itself with static linking
 # * final: Copy the binaries required at runtime
 # The resulting image uploaded to dockerhub will only contain what is needed for runtime.
@@ -32,18 +32,18 @@ RUN mkdir /opt/bitcoin && cd /opt/bitcoin \
     && tar -xzvf $BITCOIN_TARBALL $BD/bitcoin-cli --strip-components=1 \
     && rm $BITCOIN_TARBALL
 
-ENV LITECOIN_VERSION 0.14.2
-ENV LITECOIN_TARBALL litecoin-$LITECOIN_VERSION-arm-linux-gnueabihf.tar.gz
-ENV LITECOIN_URL https://download.litecoin.org/litecoin-$LITECOIN_VERSION/linux/$LITECOIN_TARBALL
-ENV LITECOIN_SHA256 e79f2a8e8e1b9920d07cff8482237b56aa4be2623103d3d2825ce09a2cc2f6d7
+ENV BEYONDCOIN_VERSION 0.16.3
+ENV BEYONDCOIN_TARBALL beyondcoin-$BEYONDCOIN_VERSION-arm-linux-gnueabihf.tar.gz
+ENV BEYONDCOIN_URL https://beyondcoin.io/bin/beyondcoin-$BEYONDCOIN_VERSION/linux/$BEYONDCOIN_TARBALL
+ENV BEYONDCOIN_SHA256 e79f2a8e8e1b9920d07cff8482237b56aa4be2623103d3d2825ce09a2cc2f6d7
 
-# install litecoin binaries
-RUN mkdir /opt/litecoin && cd /opt/litecoin \
-    && wget -qO litecoin.tar.gz "$LITECOIN_URL" \
-    && echo "$LITECOIN_SHA256  litecoin.tar.gz" | sha256sum -c - \
-    && BD=litecoin-$LITECOIN_VERSION/bin \
-    && tar -xzvf litecoin.tar.gz $BD/litecoin-cli --strip-components=1 --exclude=*-qt \
-    && rm litecoin.tar.gz
+# install beyondcoin binaries
+RUN mkdir /opt/beyondcoin && cd /opt/beyondcoin \
+    && wget -qO beyondcoin.tar.gz "$BEYONDCOIN_URL" \
+    && echo "$BEYONDCOIN_SHA256  beyondcoin.tar.gz" | sha256sum -c - \
+    && BD=beyondcoin-$BEYONDCOIN_VERSION/bin \
+    && tar -xzvf beyondcoin.tar.gz $BD/beyondcoin-cli --strip-components=1 --exclude=*-qt \
+    && rm beyondcoin.tar.gz
 
 FROM debian:stretch-slim as builder
 
@@ -108,7 +108,7 @@ RUN mkdir $LIGHTNINGD_DATA && \
 VOLUME [ "/root/.lightning" ]
 COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=downloader /opt/bitcoin/bin /usr/bin
-COPY --from=downloader /opt/litecoin/bin /usr/bin
+COPY --from=downloader /opt/beyondcoin/bin /usr/bin
 COPY tools/docker-entrypoint.sh entrypoint.sh
 
 EXPOSE 9735 9835

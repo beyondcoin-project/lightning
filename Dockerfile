@@ -1,6 +1,6 @@
 # This dockerfile is meant to compile a c-lightning x64 image
 # It is using multi stage build:
-# * downloader: Download litecoin/bitcoin and qemu binaries needed for c-lightning
+# * downloader: Download beyondcoin/bitcoin and qemu binaries needed for c-lightning
 # * builder: Compile c-lightning dependencies, then c-lightning itself with static linking
 # * final: Copy the binaries required at runtime
 # The resulting image uploaded to dockerhub will only contain what is needed for runtime.
@@ -31,19 +31,19 @@ RUN mkdir /opt/bitcoin && cd /opt/bitcoin \
     && tar -xzvf $BITCOIN_TARBALL $BD/bitcoin-cli --strip-components=1 \
     && rm $BITCOIN_TARBALL
 
-ENV LITECOIN_VERSION 0.16.3
-ENV LITECOIN_PGP_KEY FE3348877809386C
-ENV LITECOIN_URL https://download.litecoin.org/litecoin-${LITECOIN_VERSION}/linux/litecoin-${LITECOIN_VERSION}-x86_64-linux-gnu.tar.gz
-ENV LITECOIN_ASC_URL https://download.litecoin.org/litecoin-${LITECOIN_VERSION}/linux/litecoin-${LITECOIN_VERSION}-linux-signatures.asc
-ENV LITECOIN_SHA256 686d99d1746528648c2c54a1363d046436fd172beadaceea80bdc93043805994
+ENV BEYONDCOIN_VERSION 0.16.3
+ENV BEYONDCOIN_PGP_KEY FE3348877809386C
+ENV BEYONDCOIN_URL https://beyondcoin.io/bin/beyondcoin-${BEYONDCOIN_VERSION}/beyondcoin-${BEYONDCOIN_VERSION}-x86_64-linux-gnu.tar.gz
+ENV BEYONDCOIN_ASC_URL https://beyondcoin.io/bin/beyondcoin-${BEYONDCOIN_VERSION}/beyondcoin-${BEYONDCOIN_VERSION}-linux-signatures.asc
+ENV BEYONDCOIN_SHA256 686d99d1746528648c2c54a1363d046436fd172beadaceea80bdc93043805994
 
-# install litecoin binaries
-RUN mkdir /opt/litecoin && cd /opt/litecoin \
-    && wget -qO litecoin.tar.gz "$LITECOIN_URL" \
-    && echo "$LITECOIN_SHA256  litecoin.tar.gz" | sha256sum -c - \
-    && BD=litecoin-$LITECOIN_VERSION/bin \
-    && tar -xzvf litecoin.tar.gz $BD/litecoin-cli --strip-components=1 --exclude=*-qt \
-    && rm litecoin.tar.gz
+# install beyondcoin binaries
+RUN mkdir /opt/beyondcoin && cd /opt/beyondcoin \
+    && wget -qO beyondcoin.tar.gz "$BEYONDCOIN_URL" \
+    && echo "$BEYONDCOIN_SHA256  beyondcoin.tar.gz" | sha256sum -c - \
+    && BD=beyondcoin-$BEYONDCOIN_VERSION/bin \
+    && tar -xzvf beyondcoin.tar.gz $BD/beyondcoin-cli --strip-components=1 --exclude=*-qt \
+    && rm beyondcoin.tar.gz
 
 FROM debian:stretch-slim as builder
 
@@ -95,7 +95,7 @@ RUN mkdir $LIGHTNINGD_DATA && \
 VOLUME [ "/root/.lightning" ]
 COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=downloader /opt/bitcoin/bin /usr/bin
-COPY --from=downloader /opt/litecoin/bin /usr/bin
+COPY --from=downloader /opt/beyondcoin/bin /usr/bin
 COPY tools/docker-entrypoint.sh entrypoint.sh
 
 EXPOSE 9735 9835

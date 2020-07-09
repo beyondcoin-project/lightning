@@ -1,6 +1,6 @@
 # This dockerfile is meant to cross compile with a x64 machine for a arm64v8 host
 # It is using multi stage build: 
-# * downloader: Download litecoin/bitcoin and qemu binaries needed for c-lightning
+# * downloader: Download beyondcoin/bitcoin and qemu binaries needed for c-lightning
 # * builder: Cross compile c-lightning dependencies, then c-lightning itself with static linking
 # * final: Copy the binaries required at runtime
 # The resulting image uploaded to dockerhub will only contain what is needed for runtime.
@@ -32,18 +32,18 @@ RUN mkdir /opt/bitcoin && cd /opt/bitcoin \
     && tar -xzvf $BITCOIN_TARBALL $BD/bitcoin-cli --strip-components=1 \
     && rm $BITCOIN_TARBALL
 
-ENV LITECOIN_VERSION 0.14.2
-ENV LITECOIN_TARBALL litecoin-$LITECOIN_VERSION-aarch64-linux-gnu.tar.gz
-ENV LITECOIN_URL https://download.litecoin.org/litecoin-$LITECOIN_VERSION/linux/$LITECOIN_TARBALL
-ENV LITECOIN_SHA256 69449c3c8206f75cfdef929562b323326f1d0496f77f82608f9a974cbb2fd373
+ENV BEYONDCOIN_VERSION 0.16.3
+ENV BEYONDCOIN_TARBALL beyondcoin-$BEYONDCOIN_VERSION-aarch64-linux-gnu.tar.gz
+ENV BEYONDCOIN_URL https://beyondcoin.io/bin/beyondcoin-$BEYONDCOIN_VERSION/$BEYONDCOIN_TARBALL
+ENV BEYONDCOIN_SHA256 69449c3c8206f75cfdef929562b323326f1d0496f77f82608f9a974cbb2fd373
 
-# install litecoin binaries
-RUN mkdir /opt/litecoin && cd /opt/litecoin \
-    && wget -qO litecoin.tar.gz "$LITECOIN_URL" \
-    && echo "$LITECOIN_SHA256  litecoin.tar.gz" | sha256sum -c - \
-    && BD=litecoin-$LITECOIN_VERSION/bin \
-    && tar -xzvf litecoin.tar.gz $BD/litecoin-cli --strip-components=1 --exclude=*-qt \
-    && rm litecoin.tar.gz
+# install beyondcoin binaries
+RUN mkdir /opt/beyondcoin && cd /opt/beyondcoin \
+    && wget -qO beyondcoin.tar.gz "$BEYONDCOIN_URL" \
+    && echo "$BEYONDCOIN_SHA256  beyondcoin.tar.gz" | sha256sum -c - \
+    && BD=beyondcoin-$BEYONDCOIN_VERSION/bin \
+    && tar -xzvf beyondcoin.tar.gz $BD/beyondcoin-cli --strip-components=1 --exclude=*-qt \
+    && rm beyondcoin.tar.gz
 
 FROM debian:stretch-slim as builder
 
